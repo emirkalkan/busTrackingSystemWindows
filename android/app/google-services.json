@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "705663012113",
+    "firebase_url": "https://bustrackingsystem-31e21.firebaseio.com",
+    "project_id": "bustrackingsystem-31e21",
+    "storage_bucket": "bustrackingsystem-31e21.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:705663012113:android:9b3bd569df0473052fd0b0",
+        "android_client_info": {
+          "package_name": "com.bus_tracking_system"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "705663012113-5cpsle2g1qu8c30ml73o35vub0knglm2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAsXHq-PBKkDOSJ7BeknY8h17DymdnKXug"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "705663012113-5cpsle2g1qu8c30ml73o35vub0knglm2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
