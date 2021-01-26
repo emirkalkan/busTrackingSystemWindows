@@ -1,5 +1,8 @@
 import 'package:bus_tracking_system/brand_colors.dart';
 import 'package:bus_tracking_system/helpers/helperMethods.dart';
+import 'package:bus_tracking_system/tabs/DriverTabs/homeTabDriver.dart';
+import 'package:bus_tracking_system/tabs/DriverTabs/profileTabDriver.dart';
+import 'package:bus_tracking_system/tabs/DriverTabs/routeTabDriver.dart';
 import 'package:bus_tracking_system/tabs/busStopTab.dart';
 import 'package:bus_tracking_system/tabs/busTab.dart';
 import 'package:bus_tracking_system/tabs/homeTab.dart';
@@ -7,15 +10,15 @@ import 'package:bus_tracking_system/tabs/profileTab.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
-class MainPage extends StatefulWidget {
+class MainPageDriver extends StatefulWidget {
 
-  static const String id = 'mainpage';
+  static const String id = 'mainPageDriver';
 
   @override
-  _MainPageState createState() => _MainPageState();
+  _MainPageDriverState createState() => _MainPageDriverState();
 }
 
-class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin {
+class _MainPageDriverState extends State<MainPageDriver> with SingleTickerProviderStateMixin {
 
   TabController tabController;
   int selectedIndex = 0;
@@ -31,8 +34,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
   void initState() {
     // TODO: implement initState
     super.initState();
-    tabController = TabController(length: 4, vsync: this);
-    HelperMethods.getPassengerInfo();
+    tabController = TabController(length: 3, vsync: this);
+    HelperMethods.getDriverInfo();
   }
 
   @override
@@ -42,7 +45,6 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     super.dispose();
   }
 
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
 
@@ -50,26 +52,21 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
         physics: NeverScrollableScrollPhysics(),
         controller: tabController,
         children: <Widget>[
-          HomeTab(),
-          BusTab(),
-          BusStopTab(),
-          ProfileTab(),
+          RouteTabDriver(),
+          HomeTabDriver(),
+          ProfileTabDriver(),
 
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              title: Text('Home'),
+            icon: Icon(Icons.home),
+            title: Text('Home'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.alt_route_sharp),
-            title: Text('Routes'),
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance),
-            title: Text('Bus Stops'),
+            icon: Icon(Icons.map_outlined),
+            title: Text('Map'),
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

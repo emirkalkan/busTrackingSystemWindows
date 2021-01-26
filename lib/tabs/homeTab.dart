@@ -1,7 +1,14 @@
 import 'dart:async';
-import 'dart:math';
+import 'dart:collection';
+import 'dart:io';
+import 'package:bus_tracking_system/dataModels/nearbyDrivers.dart';
 import 'package:bus_tracking_system/globalVariables.dart';
+import 'package:bus_tracking_system/helpers/fireHelper.dart';
+import 'package:bus_tracking_system/helpers/helperMethods.dart';
+import 'package:bus_tracking_system/helpers/pushNotificationService.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_geofire/flutter_geofire.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class HomeTab extends StatefulWidget {
@@ -12,131 +19,195 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
 
   //markers
-  BitmapDescriptor busStopLocationIcon;
-  Map<MarkerId,Marker> markers = {};
-  List listMarkerIds=List();
+  //BitmapDescriptor busStopLocationIcon;
+  //Map<MarkerId,Marker> markers = {};
+  //List listMarkerIds=List();
+  Set<Marker> markersDriver = {};
+  BitmapDescriptor nearbyIcon;
 
   GoogleMapController mapController;
   Completer<GoogleMapController> _controller = Completer();
 
+  var geoLocator = Geolocator();
+  Position currentPosition;
+
+  bool nearbyDriversKeysLoaded = false;
+
+  void setupPositionLocator() async {
+    Position position = await geoLocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.bestForNavigation);
+    currentPosition = position;
+    LatLng pos = LatLng(position.latitude, position.longitude);
+    //zoom to user's location
+    mapController.animateCamera(CameraUpdate.newLatLng(pos));
+    //CameraPosition cp = new CameraPosition(target: pos, zoom: 16);
+    //mapController.animateCamera(CameraUpdate.newCameraPosition(cp));
+
+    startGeofireListener();
+  }
+
+  void createMarker(){
+    if(nearbyIcon == null){
+      ImageConfiguration imageConfiguration = createLocalImageConfiguration(context, size: Size(1, 1));
+      BitmapDescriptor.fromAssetImage(
+          imageConfiguration, (Platform.isIOS)
+          ? 'images/busLocationMarker.png'
+          : 'images/busLocationMarker5.png'
+      ).then((icon){
+        nearbyIcon = icon;
+      });
+    }
+  }
+
+  void getCurrentPassengerInfo() async{
+    user = auth.currentUser;
+    PushNotificationService pushNotificationService = PushNotificationService();
+
+    pushNotificationService.initialize();
+    pushNotificationService.getToken();
+  }
+
   @override
   void initState() {
-    BitmapDescriptor.fromAssetImage(
-        ImageConfiguration(devicePixelRatio: 2.5),
-        'images/stopMarker3.png').then((onValue) {
-          busStopLocationIcon = onValue;
-        });
+    // TODO: implement initState
+    //HelperMethods.getRouteInfo(globalDriver);
+    getCurrentPassengerInfo();
+    super.initState();
   }
+
+  @override
+  void didUpdateWidget(covariant HomeTab oldWidget) {
+    // TODO: implement didUpdateWidget
+    //HelperMethods.getRouteInfo(globalDriver);
+    super.didUpdateWidget(oldWidget);
+  }
+  /*void createBusStopMarker(){
+    if(busStopLocationIcon == null){
+      ImageConfiguration imageConfiguration = createLocalImageConfiguration(context, size: Size(1, 1));
+      BitmapDescriptor.fromAssetImage(
+          imageConfiguration,
+          'images/stopMarker3.png'
+      ).then((icon){
+        busStopLocationIcon = icon;
+      });
+    }
+  }*/
 
   Widget build(BuildContext context) {
 
-    LatLng pinPosition1 = LatLng(40.9747, 29.1531);
-    LatLng pinPosition2 = LatLng(40.9734, 29.1517);
-    LatLng pinPosition3 = LatLng(40.9726, 29.1508);
-    LatLng pinPosition4 = LatLng(40.9721, 29.1505);
-    LatLng pinPosition5 = LatLng(40.9707, 29.1527);
-    LatLng pinPosition6 = LatLng(40.9699, 29.1543);
-    LatLng pinPosition7 = LatLng(40.9708, 29.1544);
-    LatLng pinPosition8 = LatLng(40.9717, 29.1537);
-    LatLng pinPosition9 = LatLng(40.9725, 29.1521);
-    LatLng pinPosition10 = LatLng(40.9748, 29.1533);
+    createMarker();
+    //createBusStopMarker();
 
     return Stack(
       children: <Widget>[
         GoogleMap(
           myLocationEnabled: true,
           myLocationButtonEnabled: true,
-          mapType: MapType.satellite,
+          mapType: MapType.normal,
+          zoomControlsEnabled: true,
+          zoomGesturesEnabled: true,
           initialCameraPosition: googlePlex,
-          markers: Set.of(markers.values),
+          markers: markersDriver,
           onMapCreated: (GoogleMapController controller){
             _controller.complete(controller);
             mapController = controller;
-
-            MarkerId markerId1 = MarkerId("1");
-            MarkerId markerId2 = MarkerId("2");
-            MarkerId markerId3 = MarkerId("3");
-            MarkerId markerId4 = MarkerId("4");
-            MarkerId markerId5 = MarkerId("5");
-            MarkerId markerId6 = MarkerId("6");
-            MarkerId markerId7 = MarkerId("7");
-            MarkerId markerId8 = MarkerId("8");
-            MarkerId markerId9 = MarkerId("9");
-            MarkerId markerId10 = MarkerId("10");
-
-            listMarkerIds.add(markerId1);
-            listMarkerIds.add(markerId2);
-            listMarkerIds.add(markerId3);
-            listMarkerIds.add(markerId4);
-            listMarkerIds.add(markerId5);
-            listMarkerIds.add(markerId6);
-            listMarkerIds.add(markerId7);
-            listMarkerIds.add(markerId8);
-            listMarkerIds.add(markerId9);
-            listMarkerIds.add(markerId10);
-
-            Marker marker1=Marker(markerId: markerId1,
-              position: LatLng(40.9748, 29.1532),
-              icon: busStopLocationIcon,
-              infoWindow: InfoWindow(
-                title: "1. Stop",
-              )
-            );
-            Marker marker2=Marker(markerId: markerId2,
-                position: pinPosition2,
-                icon: busStopLocationIcon
-            );
-            Marker marker3=Marker(markerId: markerId3,
-              position: pinPosition3,
-              icon: busStopLocationIcon,
-            );
-            Marker marker4=Marker(markerId: markerId4,
-              position: pinPosition4,
-              icon: busStopLocationIcon,
-            );
-            Marker marker5=Marker(markerId: markerId5,
-              position: pinPosition5,
-              icon: busStopLocationIcon,
-            );
-            Marker marker6=Marker(markerId: markerId6,
-              position: pinPosition6,
-              icon: busStopLocationIcon,
-            );
-            Marker marker7=Marker(markerId: markerId7,
-              position: pinPosition7,
-              icon: busStopLocationIcon,
-            );
-            Marker marker8=Marker(markerId: markerId8,
-              position: pinPosition8,
-              icon: busStopLocationIcon,
-            );
-            Marker marker9=Marker(markerId: markerId9,
-              position: pinPosition9,
-              icon: busStopLocationIcon,
-            );
-            Marker marker10=Marker(markerId: markerId10,
-              position: pinPosition10,
-              icon: busStopLocationIcon,
-              infoWindow: InfoWindow(
-                title: 'Last Stop'
-              )
-            );
-
             setState(() {
-              markers[markerId1]=marker1;
-              markers[markerId2]=marker2;
-              markers[markerId3]=marker3;
-              markers[markerId4]=marker4;
-              markers[markerId5]=marker5;
-              markers[markerId6]=marker6;
-              markers[markerId7]=marker7;
-              markers[markerId8]=marker8;
-              markers[markerId9]=marker9;
-              markers[markerId10]=marker10;
+              /*tempMarkers.add(marker1);
+              tempMarkers.add(marker2);
+              tempMarkers.add(marker3);
+              tempMarkers.add(marker4);
+              tempMarkers.add(marker5);
+              tempMarkers.add(marker6);
+              tempMarkers.add(marker7);
+              tempMarkers.add(marker8);
+              tempMarkers.add(marker9);
+              tempMarkers.add(marker10);*/
             });
+
+            setupPositionLocator();
           },
         )
       ],
     );
+  }
+
+  void startGeofireListener(){
+
+    Geofire.initialize('driversAvailable');
+    Geofire.queryAtLocation(currentPosition.latitude, currentPosition.longitude, 20).listen((map) {
+
+      if(map != null){
+        var callBack = map['callBack'];
+
+        switch(callBack){
+          case Geofire.onKeyEntered:
+
+            NearbyDriver nearbyDriver = NearbyDriver();
+            nearbyDriver.key = map['key'];
+            nearbyDriver.latitude = map['latitude'];
+            nearbyDriver.longitude = map['longitude'];
+            //nearbyDriver.routeName = routeName;
+            FireHelper.nearbyDriverList.add(nearbyDriver);
+            if(nearbyDriversKeysLoaded){
+              updateDriversOnMap();
+            }
+            break;
+
+          case Geofire.onKeyExited:
+
+            FireHelper.removeFromList(map['key']);
+            updateDriversOnMap();
+            break;
+
+          case Geofire.onKeyMoved:
+            //update key's location
+            NearbyDriver nearbyDriver = NearbyDriver();
+            nearbyDriver.key = map['key'];
+            nearbyDriver.latitude = map['latitude'];
+            nearbyDriver.longitude = map['longitude'];
+            //nearbyDriver.routeName = map['routeName'];
+
+            FireHelper.updateNearbyLocation(nearbyDriver);
+            updateDriversOnMap();
+            break;
+
+          case Geofire.onGeoQueryReady:
+            //All initial Data is loaded
+            print('Firehelper length: ${FireHelper.nearbyDriverList.length}');
+            nearbyDriversKeysLoaded = true;
+            updateDriversOnMap();
+            break;
+        }
+      }
+    });
+  }
+
+  void updateDriversOnMap(){
+    setState(() {
+      markersDriver.clear();
+    });
+
+    Set<Marker> tempMarkers = Set<Marker>();
+    for (NearbyDriver driver in FireHelper.nearbyDriverList){
+      LatLng driverPosition = LatLng(driver.latitude, driver.longitude);
+
+      driver = HelperMethods.getRouteInfo(driver);
+      //globalDriver = driver;
+      print('homeTab:  ${driver.routeName}');
+
+      Marker thisMarker = Marker(
+        markerId: MarkerId('driver${driver.key}'),
+        position: driverPosition,
+        icon: nearbyIcon,
+        infoWindow: InfoWindow(
+          title: (driver.routeName != null) ? 'Route: ${driver.routeName}' : 'No route!',
+        ),
+        //rotation: HelperMethods.generateRandomNumber(360),
+      );
+      tempMarkers.add(thisMarker);
+    }
+
+    setState(() {
+      markersDriver = tempMarkers;
+    });
   }
 }

@@ -1,21 +1,25 @@
 import 'package:bus_tracking_system/brand_colors.dart';
 import 'package:bus_tracking_system/globalVariables.dart';
+import 'package:bus_tracking_system/helpers/helperMethods.dart';
 import 'package:bus_tracking_system/screens/loginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:bus_tracking_system/widgets/ProgressDialog.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:bus_tracking_system/helpers/helperMethods.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:bus_tracking_system/dataModels/passenger.dart';
 
-class ProfileTab extends StatefulWidget {
+class ProfileTabDriver extends StatefulWidget {
 
   static const String id = 'profile';
 
   @override
-  _ProfileTabState createState() => _ProfileTabState();
+  _ProfileTabDriverState createState() => _ProfileTabDriverState();
 }
 
-class _ProfileTabState extends State<ProfileTab> {
+class _ProfileTabDriverState extends State<ProfileTabDriver> {
 
   final GlobalKey<ScaffoldState> scaffoldKey= new GlobalKey<ScaffoldState>();
 
@@ -59,7 +63,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   style: TextStyle(fontSize: 30, fontFamily: 'Brand-Bold'),
                 ),
 
-                SizedBox(height: 20,),
+                SizedBox(height: 10,),
 
                 Image(
                   alignment: Alignment.center,
@@ -73,7 +77,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   child: Column(
                     children: <Widget>[
                       TextFormField(
-                        initialValue: fullNamePassenger,
+                        initialValue: fullNameDriver,
                         readOnly: true,
                         decoration: InputDecoration(
                           labelText: "Full Name",
@@ -97,16 +101,28 @@ class _ProfileTabState extends State<ProfileTab> {
                       SizedBox(height: 20,),
 
                       TextFormField(
-                        initialValue: phonePassenger,
+                        initialValue: phoneDriver,
                         readOnly: true,
                         decoration: InputDecoration(
-                          labelText: "Phone number",
-                          hintText: "Phone",
+                          labelText: "Phone Number",
+                          hintText: "Phone Number",
                           border: OutlineInputBorder(),
                         ),
                       ),
 
                       SizedBox(height: 20,),
+
+                      TextFormField(
+                        initialValue: plateNo,
+                        readOnly: true,
+                        decoration: InputDecoration(
+                          labelText: "Plate Number",
+                          hintText: "Plate No",
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+
+                      SizedBox(height: 40,),
 
                       RaisedButton(
                         onPressed: () async{

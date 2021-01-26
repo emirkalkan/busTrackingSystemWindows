@@ -9,15 +9,15 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class RegistrationPage extends StatefulWidget {
+class AdminPage extends StatefulWidget {
 
-  static const String id = 'register';
+  static const String id = 'admin';
 
   @override
-  _RegistrationPageState createState() => _RegistrationPageState();
+  _AdminPageState createState() => _AdminPageState();
 }
 
-class _RegistrationPageState extends State<RegistrationPage> {
+class _AdminPageState extends State<AdminPage> {
 
   final GlobalKey<ScaffoldState> scaffoldKey= new GlobalKey<ScaffoldState>();
 
@@ -34,6 +34,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   var phoneController = TextEditingController();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
+  var plateController = TextEditingController();
 
   void registerUser() async {
 
@@ -52,18 +53,21 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
       if(userCredential.user != null){
 
-        DatabaseReference newPassengerRef = FirebaseDatabase.instance.reference().child('passengers/${userCredential.user.uid}');
+        DatabaseReference newPassengerRef = FirebaseDatabase.instance.reference().child('drivers/${userCredential.user.uid}');
         //Prepare data to be saved on users  table
         Map userMap = {
           'fullName': fullNameController.text,
           'email': emailController.text,
           'phone': phoneController.text,
-          'isDriver': false,
+          'isDriver': true,
+          'plateNo': plateController.text,
         };
         newPassengerRef.set(userMap);
-
-        //Take the user to the main page
-        Navigator.pushNamedAndRemoveUntil(context, MainPage.id, (route) => false);
+        showDialog(
+          barrierDismissible: false,
+          context: context,
+          builder: (BuildContext context) => ProgressDialog(status: 'Driver successfully created.',),
+        );
         print('Registration successful');
       }
     } on FirebaseAuthException catch (e) {
@@ -130,7 +134,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
                 SizedBox(height: 20,),
 
-                Text('Create a passenger account',
+                Text(' Create a driver account \n-Admin-',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 25, fontFamily: 'Brand-Bold'),
                 ),
@@ -145,7 +149,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         controller: fullNameController,
                         keyboardType: TextInputType.text,
                         decoration: InputDecoration(
-                            labelText: 'Full name',
+                            labelText: 'Full Name',
                             labelStyle: TextStyle(
                               fontSize: 14.0,
                             ),
@@ -164,7 +168,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         controller: emailController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
-                            labelText: 'Email address',
+                            labelText: 'Email Address',
                             labelStyle: TextStyle(
                               fontSize: 14.0,
                             ),
@@ -183,7 +187,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         controller: phoneController,
                         keyboardType: TextInputType.phone,
                         decoration: InputDecoration(
-                            labelText: 'Phone number',
+                            labelText: 'Phone Number',
                             labelStyle: TextStyle(
                               fontSize: 14.0,
                             ),
@@ -214,6 +218,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
                         style: TextStyle(fontSize: 14),
                       ),
 
+                      SizedBox(height: 10,),
+
+                      TextField(
+                        controller: plateController,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                            labelText: 'Plate No',
+                            labelStyle: TextStyle(
+                              fontSize: 14.0,
+                            ),
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                              fontSize: 10.0,
+                            )
+                        ),
+                        style: TextStyle(fontSize: 14),
+                      ),
+
                       SizedBox(height: 40,),
 
                       RaisedButton(
@@ -226,7 +248,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                             showSnackBar('No internet connection!');
                             return;
                           }
-                          
+
                           if(fullNameController.text.length < 3){
                             showSnackBar('Please provide a valid full name.');
                             return;
@@ -258,7 +280,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                           height: 50,
                           child: Center(
                             child: Text(
-                              'SIGN IN',
+                              'CREATE DRIVER',
                               style: TextStyle(fontSize: 18, fontFamily: 'Brand-Bold'),
                             ),
                           ),
@@ -268,15 +290,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     ],
                   ),
                 ),
-
-                FlatButton(
-                    onPressed: (){
-                      Navigator.pushNamedAndRemoveUntil(context, LoginPage.id, (route) => false);
-                    },
-                    child: Text('Already have an account? Log in')
-                ),
-
-
               ],
             ),
           ),
@@ -285,3 +298,4 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
   }
 }
+
